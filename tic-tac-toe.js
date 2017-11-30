@@ -24,6 +24,7 @@ var striker2 = [];
 var counterToWin = 0;
 // var winStatus = false;
 var win = 0;
+var gameOver = false;
 var winningCombo = [
   [0, 1, 2],
   [3, 4, 5],
@@ -35,7 +36,7 @@ var winningCombo = [
   [2, 4, 6]
 ];
 
-
+$('.btn-reset').click(restart);
 
 function restart() {
   console.log('restart');
@@ -46,6 +47,10 @@ function restart() {
   counterToWin = 0;
   // var winStatus = false;
   win = 0;
+  gameOver = false;
+  $('td').attr('data-taken', 0);
+  $('td').removeClass('player1 player2');
+
 }
 
 // playTurn(index)
@@ -74,7 +79,7 @@ $('td').click(function() {
   // go to played
   // else
   // try again
-
+if (!gameOver) {
   var cell = $(this).attr('data-taken');
   if (cell == 0) {
     var id = $(this).attr('data-id');
@@ -82,6 +87,7 @@ $('td').click(function() {
   } else {
     console.log('Try Again');
   }
+}
 });
 
 
@@ -140,6 +146,7 @@ isGameOver();
 function isGameOver() {
   if (whoWon(win)) {
    console.log('Game Over');
+   gameOver = true;
   } else {
     console.log('Continue with game');
     if (player == 1) {
