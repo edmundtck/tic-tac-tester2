@@ -17,14 +17,14 @@
 // It is assumed that the turns of the player will be automatically changed after an allowed move.
 //
 // The application will console log all the passed or failed test.
+
+// ======================== DECLARE VARIABLE ========================
+
 var player = 1;
 var striker1 = [];
 var striker2 = [];
-// var dataAttr = 0;
 var counterToWin = 0;
-// var winStatus = false;
 var win = 0;
-var gameOver = false;
 var winningCombo = [
   [0, 1, 2],
   [3, 4, 5],
@@ -36,8 +36,45 @@ var winningCombo = [
   [2, 4, 6]
 ];
 
-$('.btn-reset').click(restart);
 
+// ======================== FUNCTIONS ========================
+
+// return true or false to see if game is over
+function isGameOver() {
+  switch (whoWon()) {
+    case 1:
+    case 2:
+    case 3:
+      setTimeout(restart, 1000);
+      return true;
+    case 0:
+      return false;
+  }
+}
+
+
+// return value and update status box of who win or draw game
+function whoWon() {
+  if (win == 1) {
+    $('.status-box').text('Player 1 Won!!');
+    console.log('player 1 win');
+    return 1;
+  } else if (win == 2) {
+    $('.status-box').text('Player 2 Won!!');
+    console.log('player 2 win');
+    return 2;
+  } else if (win == 3) {
+    $('.status-box').text('Game Draw');
+    console.log('its a draw');
+    return 3;
+  } else {
+    console.log('continue game');
+    return 0;
+  }
+}
+
+
+// restart feature
 function restart() {
   console.log('restart');
   player = 1;
@@ -50,133 +87,93 @@ function restart() {
   gameOver = false;
   $('td').attr('data-taken', 0);
   $('td').removeClass('player1 player2');
-
+  $('.status-box').text('Player 1 - X');
 }
 
-// playTurn(index)
-//
-// indicate allow or not allow boolean
-//
-// isGameOver()
-// boolean
-//
-// whoWon()
-// 0 no one win
-// 1 player one win
-// 2 player two win
-// 3 player draw
-//
-// restart()
 
-// var cool = $('td:nth-of-type(1)').attr('data-id');
-// console.log(cool);
+// main play area
+function playTurn(index) {
+  var cell, id, updateCell;
+  if (!isGameOver()) {
+    cell = $(index).attr('data-taken');
+    if (cell == 0) {
+      id = $(index).attr('data-id');
+      updateCell = `[data-id="${id}"]`;
+      $(updateCell).attr('data-taken', '1');
+      $(updateCell).addClass('player' + player);
+      id = parseInt(id);
+
+// add numbers into array
+      if (player == 1) {
+        striker1.push(id);
+        striker = striker1;
+      } else {
+        striker2.push(id);
+        striker = striker2;
+      }
+
+// if more than more / equal to 3 then start doing conditions
+      if (striker.length >= 3) {
+        for (var i of winningCombo) {
+          // console.log('This is i ' + i);
+          for (var j of striker) {
+            // console.log('This is j ' + j);
+            if (i.includes(j)) {
+              counterToWin++;
+              // console.log('Counter to Win ' + counterToWin);
+            }
+          }
+          if (counterToWin == 3) {
+            if (player == 1) {
+              win = 1;
+              console.log('Winner player 1');
+            } else {
+              win = 2;
+              console.log('Winner player 2');
+            }
+          }
+          counterToWin = 0;
+        }
+      }
+
+// to check if no one win and all cells are taken up
+      if (striker.length == 5 && win == 0) {
+        win = 3;
+        console.log('It is a draw');
+      }
+
+// changing of player
+      if (player == 1) {
+        player = 2;
+        $('.status-box').text('Player 2 - O');
+      } else {
+        player = 1;
+        $('.status-box').text('Player 1 - X');
+      }
+
+// if press on a cell taken up
+    } else {
+      $('.status-box').text('Try Again...');
+    }
+    isGameOver();
+  }
+}
 
 
-
+// ======================= EVENT LISTENER ========================
 
 $('td').click(function() {
-  // if data-taken == 0
-  // go to played
-  // else
-  // try again
-if (!gameOver) {
-  var cell = $(this).attr('data-taken');
-  if (cell == 0) {
-    var id = $(this).attr('data-id');
-    playTurn(id);
-  } else {
-    console.log('Try Again');
-  }
-}
+  playTurn(this);
 });
+$('.btn-reset').click(restart);
 
 
-function playTurn(index) {
+// ======================= PSEUDO CODE =========================
 
-  var updateCell = `[data-id="${index}"]`;
-  $(updateCell).attr('data-taken', '1');
-  $(updateCell).addClass('player' + player);
-  index = parseInt(index);
-  if (player == 1) {
-    striker1.push(index);
-  } else {
-    striker2.push(index);
-  }
-
-  if (player == 1) {
-    striker = striker1;
-  } else {
-    striker = striker2;
-  }
-
-  if (striker.length >= 3) {
-    for (var i of winningCombo) {
-      console.log('This is i ' + i);
-      for (var j of striker) {
-        console.log('This is j ' + j);
-        if (i.includes(j)) {
-          counterToWin++;
-          console.log('Counter to Win ' + counterToWin);
-        }
-      }
-      if (counterToWin == 3) {
-        if (player == 1) {
-          win = 1;
-          console.log('Winner player 1');
-        } else {
-          win = 2
-          console.log('Winner player 2');
-        }
-      }
-      counterToWin = 0;
-    }
-    console.log('The length ' + striker.length + ' win ' + win);
-  }
-
-
-  if (striker.length == 5 && win == 0) {
-    win = 3;
-    console.log('Now win is ' + win);
-  }
-
-isGameOver();
-}
-
-
-function isGameOver() {
-  if (whoWon(win)) {
-   console.log('Game Over');
-   gameOver = true;
-  } else {
-    console.log('Continue with game');
-    if (player == 1) {
-      player = 2;
-    } else {
-      player = 1;
-    }
-  }
-}
-
-
-function whoWon(win) {
-if (win == 1) {
-  console.log('player 1 win');
-  return true;
-} else if (win == 2) {
-  console.log('player 2 win');
-  return true;
-} else if (win == 3) {
-console.log('its a draw');
-return true;
-} else {
-console.log('continue game');
-return false;
-}
-}
-
-
-
-
+// if data-taken == 0
+// go to played
+// else
+// try again
 // play(take data-id)
 // data-id change data-taken to 1
 // update css to player
